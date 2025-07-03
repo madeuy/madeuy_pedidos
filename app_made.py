@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 import yagmail
-import os
 
 # --- Títulos y formulario cliente ---
 st.title("Formulario de Pedido de Remeras")
@@ -47,7 +46,7 @@ if talles_cantidad:
                 )
             campos_formulario_2.append((talle, persona, ubicacion))
 
-# --- Botón para enviar ---
+# --- Botón para enviar pedido ---
 if campos_formulario_2 and st.button("Enviar pedido"):
     errores = []
     datos = []
@@ -62,7 +61,7 @@ if campos_formulario_2 and st.button("Enviar pedido"):
         })
 
     if errores:
-        st.error("No se puede enviar el pedido. Corregí los siguientes errores:")
+        st.error("No se puede generar el archivo. Corregí los siguientes errores:")
         for e in errores:
             st.write(f"- {e}")
     else:
@@ -81,37 +80,30 @@ if campos_formulario_2 and st.button("Enviar pedido"):
         total = pd.DataFrame([{"Talle": "TOTAL", "Cantidad": df_resumen["Cantidad"].sum()}])
         df_resumen = pd.concat([df_resumen, total], ignore_index=True)
 
-        # Guardar Excel en archivo físico
-        nombre_archivo = "pedido_personalizado.xlsx"
-        with pd.ExcelWriter(nombre_archivo, engine='openpyxl') as writer:
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df_cliente.to_excel(writer, sheet_name="datos_cliente", index=False)
             df_resumen.to_excel(writer, sheet_name="resumen_pedido", index=False)
             df_pedido.to_excel(writer, sheet_name="datos_pedido", index=False)
+        output.seek(0)
 
-        # Enviar correo
+        # --- Envío por email ---
         try:
-            st.info("Enviando archivo por correo a gqq@gmail.com...")
+            st.info("Enviando archivo por correo...")
 
             remitente = "madeformulario@gmail.com"  
-            clave = "byeatdzpupzqlyec"       
+            clave = "byeatdzpupzqlyec"            
+            destinatario = remitente                
 
             yag = yagmail.SMTP(user=remitente, password=clave)
             yag.send(
-                to="gqq@gmail.com",
+                to=destinatario,
                 subject="Nuevo pedido de remeras",
                 contents="Se adjunta el archivo con los datos del pedido.",
-                attachments=nombre_archivo
+                attachments={"pedido_personalizado.xlsx": output.getvalue()}
             )
 
-            st.success("📧 Pedido enviado correctamente a gqq@gmail.com")
-
-            os.remove(nombre_archivo)  # Limpieza del archivo temporal
-
-        except Exception as e:
-            st.error(f"Error al enviar el correo: {e}")
-
-
-            st.success("📧 Correo enviado correctamente a gqq@gmail.com")
+            st.success("Pedido enviado correctamente al correo.")
 
         except Exception as e:
             st.error(f"Error al enviar el correo: {e}")
