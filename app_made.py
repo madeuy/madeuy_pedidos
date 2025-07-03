@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 import yagmail
+import os
 
+# --- Títulos y formulario cliente ---
 st.title("Formulario de Pedido de Remeras")
 
 st.subheader("Datos del cliente")
@@ -12,6 +14,7 @@ medio = st.selectbox("Medio de contacto", ["Instagram", "WhatsApp", "Otro"])
 usuario = st.text_input("Usuario o teléfono")
 mail = st.text_input("Correo electrónico")
 
+# --- Selección de talles ---
 st.subheader("Cantidad por talle")
 talles_textiles = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 talles_numericos = [str(i) for i in range(0, 18, 2)]
@@ -25,6 +28,7 @@ for i, talle in enumerate(todos_talles):
         if cantidad > 0:
             talles_cantidad[talle] = cantidad
 
+# --- Mostrar segundo formulario solo si hay talles ---
 campos_formulario_2 = []
 if talles_cantidad:
     st.subheader("Detalle por prenda")
@@ -43,6 +47,7 @@ if talles_cantidad:
                 )
             campos_formulario_2.append((talle, persona, ubicacion))
 
+# --- Botón para enviar ---
 if campos_formulario_2 and st.button("Enviar pedido"):
     errores = []
     datos = []
@@ -57,7 +62,7 @@ if campos_formulario_2 and st.button("Enviar pedido"):
         })
 
     if errores:
-        st.error("No se puede generar el archivo. Corregí los siguientes errores:")
+        st.error("No se puede enviar el pedido. Corregí los siguientes errores:")
         for e in errores:
             st.write(f"- {e}")
     else:
@@ -76,13 +81,14 @@ if campos_formulario_2 and st.button("Enviar pedido"):
         total = pd.DataFrame([{"Talle": "TOTAL", "Cantidad": df_resumen["Cantidad"].sum()}])
         df_resumen = pd.concat([df_resumen, total], ignore_index=True)
 
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        # Guardar Excel en archivo físico
+        nombre_archivo = "pedido_personalizado.xlsx"
+        with pd.ExcelWriter(nombre_archivo, engine='openpyxl') as writer:
             df_cliente.to_excel(writer, sheet_name="datos_cliente", index=False)
             df_resumen.to_excel(writer, sheet_name="resumen_pedido", index=False)
             df_pedido.to_excel(writer, sheet_name="datos_pedido", index=False)
-        output.seek(0)
 
+        # Enviar correo
         try:
             st.info("Enviando archivo por correo a gqq@gmail.com...")
 
@@ -94,8 +100,16 @@ if campos_formulario_2 and st.button("Enviar pedido"):
                 to="gqq@gmail.com",
                 subject="Nuevo pedido de remeras",
                 contents="Se adjunta el archivo con los datos del pedido.",
-                attachments=output  
+                attachments=nombre_archivo
             )
+
+            st.success("📧 Pedido enviado correctamente a gqq@gmail.com")
+
+            os.remove(nombre_archivo)  # Limpieza del archivo temporal
+
+        except Exception as e:
+            st.error(f"Error al enviar el correo: {e}")
+
 
             st.success("📧 Correo enviado correctamente a gqq@gmail.com")
 
