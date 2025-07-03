@@ -2,8 +2,10 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 import yagmail
+import tempfile
+import os
 
-# --- Títulos y formulario cliente ---
+# --- Título y formulario cliente ---
 st.title("Formulario de Pedido de Remeras")
 
 st.subheader("Datos del cliente")
@@ -27,11 +29,10 @@ for i, talle in enumerate(todos_talles):
         if cantidad > 0:
             talles_cantidad[talle] = cantidad
 
-# --- Mostrar segundo formulario solo si hay talles ---
+# --- Formulario por prenda ---
 campos_formulario_2 = []
 if talles_cantidad:
     st.subheader("Detalle por prenda")
-
     for talle, cantidad in talles_cantidad.items():
         for i in range(cantidad):
             st.markdown(f"**Talle {talle} – Prenda {i+1}**")
@@ -61,7 +62,7 @@ if campos_formulario_2 and st.button("Enviar pedido"):
         })
 
     if errores:
-        st.error("No se puede generar el archivo. Corregí los siguientes errores:")
+        st.error("No se puede enviar el archivo. Corregí los siguientes errores:")
         for e in errores:
             st.write(f"- {e}")
     else:
@@ -87,22 +88,30 @@ if campos_formulario_2 and st.button("Enviar pedido"):
             df_pedido.to_excel(writer, sheet_name="datos_pedido", index=False)
         output.seek(0)
 
-        # --- Envío por email ---
+        # Guardar archivo temporal y enviar por mail
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+            tmp.write(output.getvalue())
+            tmp_path = tmp.name
+
         try:
             st.info("Enviando archivo por correo...")
 
             remitente = "madeformulario@gmail.com"  
-            clave = "byeatdzpupzqlyec"            
-            destinatario = remitente                
+            clave = "byeatdzpupzqlyec"  
 
             yag = yagmail.SMTP(user=remitente, password=clave)
             yag.send(
                 to=remitente,
                 subject="Nuevo pedido de remeras",
                 contents="Se adjunta el archivo con los datos del pedido.",
-                attachments=[("pedido_personalizado.xlsx", output.getvalue())]
+                attachments=tmp_path
             )
-            st.success("Pedido enviado correctamente al correo.")
+
+            st.success("Correo enviado correctamente.")
 
         except Exception as e:
             st.error(f"Error al enviar el correo: {e}")
+
+        finally:
+            os.remove(tmp_path)
+
