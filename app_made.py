@@ -96,8 +96,8 @@ if campos_formulario_2 and st.button("Enviar pedido"):
         try:
             st.info("Enviando archivo por correo...")
 
-            remitente = ""  
-            clave = ""  
+            remitente = ""  # PONER MAIL!!!
+            clave = ""  # PONER CLAVE!!!
 
             yag = yagmail.SMTP(user=remitente, password=clave)
             yag.send(
