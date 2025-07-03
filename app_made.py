@@ -87,17 +87,17 @@ if campos_formulario_2 and st.button("Enviar pedido"):
             st.info("Enviando archivo por correo a gqq@gmail.com...")
 
             remitente = "madeformulario@gmail.com"  
-            clave = "byeatdzpupzqlyec"              
+            clave = "byeatdzpupzqlyec"       
 
             yag = yagmail.SMTP(user=remitente, password=clave)
             yag.send(
                 to="gqq@gmail.com",
                 subject="Nuevo pedido de remeras",
                 contents="Se adjunta el archivo con los datos del pedido.",
-                attachments={"pedido_personalizado.xlsx": output.getvalue()}
+                attachments=output  
             )
 
-            st.success("Pedido enviado correctamente a gqq@gmail.com")
+            st.success("📧 Correo enviado correctamente a gqq@gmail.com")
 
         except Exception as e:
             st.error(f"Error al enviar el correo: {e}")
