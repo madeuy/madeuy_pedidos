@@ -104,7 +104,6 @@ if campos_formulario_2 and st.button("Enviar"):
             st.info("Enviando archivo por correo...")
 
             remitente = "madeformulario@gmail.com"  # ← Tu correo
-            clave = "byeatdzpupzqlyec"  # ← Contraseña de aplicación (entre comillas)
 
             yag = yagmail.SMTP(user=remitente, password=clave)
 
