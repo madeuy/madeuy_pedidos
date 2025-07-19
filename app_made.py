@@ -11,7 +11,7 @@ import os
 
 load_dotenv()
 clave = os.getenv("MAIL_PWD")
-print("Clave cargada:", clave)
+st.write("Clave cargada:", clave)
 
 
 # --- Título y formulario cliente ---
