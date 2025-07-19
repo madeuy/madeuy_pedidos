@@ -11,10 +11,7 @@ import os
 
 load_dotenv()
 clave = os.getenv("MAIL_PWD")
-if not clave:
-    st.error("❌ La clave no se cargó desde .env. Verificá el archivo.")
-else:
-    st.success("✅ Clave cargada correctamente.")
+
 
 
 # --- Título y formulario cliente ---
