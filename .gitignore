@@ -1,0 +1,23 @@
+# Evitar subir variables sensibles
+.env
+
+# Archivos temporales de Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.pkl
+*.tmp
+
+# Archivos de configuración del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de notebooks (si los usás)
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# Streamlit cache
+.streamlit/
