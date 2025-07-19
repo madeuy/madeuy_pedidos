@@ -48,7 +48,7 @@ if talles_cantidad:
             campos_formulario_2.append((talle, persona, ubicacion))
 
 # --- Botón para enviar pedido ---
-if campos_formulario_2 and st.button("Enviar pedido"):
+if campos_formulario_2 and st.button("Enviar"):
     errores = []
     datos = []
 
@@ -88,41 +88,38 @@ if campos_formulario_2 and st.button("Enviar pedido"):
             df_pedido.to_excel(writer, sheet_name="datos_pedido", index=False)
         output.seek(0)
 
-        # Guardar archivo temporal y enviar por mail
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
             tmp.write(output.getvalue())
             tmp_path = tmp.name
-        
+
         try:
             st.info("Enviando archivo por correo...")
-        
-            remitente = "madeformulario@gmail.com"  # Correo de la empresa
-            clave = "byeatdzpupzqlyec"  # Contraseña generada para app de Gmail
-        
+
+            remitente = "madeformulario@gmail.com"  # ← Tu correo
+            clave = "AQUÍ_TU_CLAVE_DE_APP"  # ← Contraseña de aplicación (entre comillas)
+
             yag = yagmail.SMTP(user=remitente, password=clave)
-        
-            contenido_mail = f"""
-            Hola {nombre},
-        
-            Gracias por tu pedido. Adjuntamos el archivo con el detalle de tu solicitud.
-        
-            ¡Saludos!
-            """
-        
-            # Enviar a empresa + cliente
+
             destinatarios = [remitente, mail.strip()]
-        
+            mensaje = f"""
+Hola {nombre},
+
+Gracias por tu pedido. Adjuntamos el archivo con el detalle de tu solicitud.
+
+¡Saludos!
+"""
+
             yag.send(
                 to=destinatarios,
                 subject="Confirmación de pedido de remeras",
-                contents=contenido_mail,
+                contents=mensaje,
                 attachments=tmp_path
             )
-        
-            st.success("Correo enviado correctamente a la empresa y al cliente.")
-        
+
+            st.success("El pedido fue enviado correctamente por correo.")
+
         except Exception as e:
             st.error(f"Error al enviar el correo: {e}")
+
         finally:
             os.remove(tmp_path)
-
