@@ -92,26 +92,37 @@ if campos_formulario_2 and st.button("Enviar pedido"):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
             tmp.write(output.getvalue())
             tmp_path = tmp.name
-
+        
         try:
             st.info("Enviando archivo por correo...")
-
-            remitente = ""  # PONER MAIL!!!
-            clave = ""  # PONER CLAVE!!!
-
+        
+            remitente = "madeformulario@gmail.com"  # Correo de la empresa
+            clave = "TU_CONTRASEÑA_AQUÍ"  # Contraseña generada para app de Gmail
+        
             yag = yagmail.SMTP(user=remitente, password=clave)
+        
+            contenido_mail = f"""
+            Hola {nombre},
+        
+            Gracias por tu pedido. Adjuntamos el archivo con el detalle de tu solicitud.
+        
+            ¡Saludos!
+            """
+        
+            # Enviar a empresa + cliente
+            destinatarios = [remitente, mail.strip()]
+        
             yag.send(
-                to=remitente,
-                subject="Nuevo pedido de remeras",
-                contents="Se adjunta el archivo con los datos del pedido.",
+                to=destinatarios,
+                subject="Confirmación de pedido de remeras",
+                contents=contenido_mail,
                 attachments=tmp_path
             )
-
-            st.success("Correo enviado correctamente.")
-
+        
+            st.success("Correo enviado correctamente a la empresa y al cliente.")
+        
         except Exception as e:
             st.error(f"Error al enviar el correo: {e}")
-
         finally:
             os.remove(tmp_path)
 
