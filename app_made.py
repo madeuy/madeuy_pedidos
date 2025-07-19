@@ -13,6 +13,7 @@ load_dotenv()
 clave = os.getenv("MAIL_PWD")
 
 
+st.image("logomade.jpg", width=250)
 
 # --- Título y formulario cliente ---
 st.title("Formulario de Pedido de Remeras")
