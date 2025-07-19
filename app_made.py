@@ -1,9 +1,17 @@
+# VERSION QUE FUNCIONA
 import streamlit as st
 import pandas as pd
 from io import BytesIO
 import yagmail
 import tempfile
 import os
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+clave = os.getenv("MAIL_PWD")
+
 
 # --- Título y formulario cliente ---
 st.title("Formulario de Pedido de Remeras")
