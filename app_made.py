@@ -6,12 +6,9 @@ import yagmail
 import tempfile
 import os
 
-from dotenv import load_dotenv
-import os
+import streamlit as st
 
-load_dotenv()
-clave = os.getenv("MAIL_PWD")
-
+clave = st.secrets["MAIL_PWD"]
 
 st.image("logomade.jpg", width=250)
 
